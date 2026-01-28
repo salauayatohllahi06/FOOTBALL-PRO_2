@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Legacy Analysis Reveal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #05070a; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .hall-of-fame { border: 4px solid #fbbf24; box-shadow: 0 0 80px rgba(251, 191, 36, 0.3); transform: scale(1.05); z-index: 10; }
+        .stat-line { height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
+        .stat-fill { height: 100%; background: #fbbf24; box-shadow: 0 0 10px #fbbf24; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-6xl w-full">
+        <h1 class="text-center text-4xl font-black italic mb-16 tracking-widest text-white/20">ALL-TIME COMPARISON</h1>
+        
+        <div class="flex flex-col lg:flex-row gap-8 justify-center items-center">
+            <div id="card1" class="bg-[#0f1218] rounded-[60px] p-12 w-full max-w-md border border-white/5 transition-all duration-500">
+                <div class="flex justify-between items-start mb-10">
+                    <img id="i1" class="w-32 h-32 rounded-[30px] object-cover border-2 border-amber-500/50">
+                    <div class="text-right">
+                        <div id="r1" class="text-7xl font-black italic text-amber-500"></div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Legacy Score</p>
+                    </div>
+                </div>
+                <h2 id="n1" class="text-3xl font-black uppercase italic mb-1"></h2>
+                <div id="cups1" class="flex flex-wrap gap-1 mb-8"></div>
+                
+                <div class="space-y-6 mb-10">
+                    <div>
+                        <div class="flex justify-between text-[10px] font-black uppercase mb-2"><span>Power</span><span id="p1-v"></span></div>
+                        <div class="stat-line"><div id="p1-b" class="stat-fill"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[10px] font-black uppercase mb-2"><span>Precision</span><span id="s1-v"></span></div>
+                        <div class="stat-line"><div id="s1-b" class="stat-fill"></div></div>
+                    </div>
+                </div>
+                <div id="ach1" class="space-y-2"></div>
+            </div>
+
+            <div class="text-2xl font-black italic opacity-20">VS</div>
+
+            <div id="card2" class="bg-[#0f1218] rounded-[60px] p-12 w-full max-w-md border border-white/5 transition-all duration-500">
+                <div class="flex justify-between items-start mb-10">
+                    <img id="i2" class="w-32 h-32 rounded-[30px] object-cover border-2 border-amber-500/50">
+                    <div class="text-right">
+                        <div id="r2" class="text-7xl font-black italic text-amber-500"></div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Legacy Score</p>
+                    </div>
+                </div>
+                <h2 id="n2" class="text-3xl font-black uppercase italic mb-1"></h2>
+                <div id="cups2" class="flex flex-wrap gap-1 mb-8"></div>
+                
+                <div class="space-y-6 mb-10">
+                    <div>
+                        <div class="flex justify-between text-[10px] font-black uppercase mb-2"><span>Power</span><span id="p2-v"></span></div>
+                        <div class="stat-line"><div id="p2-b" class="stat-fill"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[10px] font-black uppercase mb-2"><span>Precision</span><span id="s2-v"></span></div>
+                        <div class="stat-line"><div id="s2-b" class="stat-fill"></div></div>
+                    </div>
+                </div>
+                <div id="ach2" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <div class="text-center mt-16">
+            <button onclick="window.location.href='forwards_select.html'" class="text-amber-500 font-black text-xs uppercase tracking-[0.4em] border-b-2 border-amber-500/20 pb-2 hover:text-white transition">Reset History</button>
+        </div>
+    </div>
+
+    <script>
+        const d1 = JSON.parse(localStorage.getItem('f1'));
+        const d2 = JSON.parse(localStorage.getItem('f2'));
+
+        function calculateLegacy(data) {
+            // JUDGMENT LOGIC: Base Rating + (2 points for every 5 cups)
+            const cupBonus = Math.floor(data.cups / 5) * 2;
+            return data.base + cupBonus;
+        }
+
+        function fill(slot, data) {
+            const finalScore = calculateLegacy(data);
+            document.getElementById('n'+slot).innerText = data.name;
+            document.getElementById('i'+slot).src = data.img;
+            document.getElementById('r'+slot).innerText = finalScore;
+            
+            document.getElementById(`p${slot}-v`).innerText = data.stats[0];
+            document.getElementById(`p${slot}-b`).style.width = data.stats[0] + "%";
+            document.getElementById(`s${slot}-v`).innerText = data.stats[1];
+            document.getElementById(`s${slot}-b`).style.width = data.stats[1] + "%";
+
+            const c = document.getElementById('cups'+slot);
+            c.innerHTML = `<span class="text-amber-500 font-black text-xs mr-2">${data.cups} CUPS</span>`;
+            for(let i=0; i<Math.min(data.cups, 10); i++) c.innerHTML += `🏆`;
+            if(data.cups > 10) c.innerHTML += `+`;
+
+            data.ach.forEach(a => {
+                document.getElementById('ach'+slot).innerHTML += `<div class="bg-white/5 p-3 rounded-2xl text-[10px] font-bold text-slate-300">✨ ${a}</div>`;
+            });
+            return finalScore;
+        }
+
+        const s1 = fill(1, d1);
+        const s2 = fill(2, d2);
+
+        if(s1 > s2) document.getElementById('card1').classList.add('hall-of-fame');
+        else if(s2 > s1) document.getElementById('card2').classList.add('hall-of-fame');
+    </script>
+</body>
+</html>

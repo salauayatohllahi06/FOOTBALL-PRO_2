@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tactical Dream XI | FootballPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #05070a; color: white; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+        
+        .pitch {
+            background: #0a0f0a;
+            background-image: 
+                radial-gradient(circle at center, rgba(34, 197, 94, 0.15) 0%, transparent 70%),
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
+            border: 2px solid rgba(255,255,255,0.1);
+            position: relative;
+            aspect-ratio: 3/4;
+            border-radius: 40px;
+        }
+
+        .player-slot { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .player-slot:hover { transform: scale(1.1); }
+
+        /* Custom Scrollbar for Modal */
+        #modal-list::-webkit-scrollbar { width: 4px; }
+        #modal-list::-webkit-scrollbar-thumb { background: #fbbf24; border-radius: 10px; }
+
+        .stat-bar-bg { background: rgba(255,255,255,0.05); height: 4px; border-radius: 2px; width: 100%; overflow: hidden; }
+        .stat-bar-fill { background: #fbbf24; height: 100%; }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
+        
+        <div class="lg:col-span-4 space-y-8">
+            <header>
+                <h1 class="text-6xl font-[1000] italic uppercase tracking-tighter leading-none">DREAM <span class="text-amber-500">XI</span></h1>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em] mt-4 ">Pro Tactical Interface</p>
+            </header>
+
+            <div class="bg-white/5 border border-white/10 p-6 rounded-[32px] space-y-6">
+                <div>
+                    <label class="text-[10px] font-black uppercase text-slate-500 mb-2 block">Tactical Setup</label>
+                    <select id="formationSelect" onchange="updateFormation()" class="w-full bg-black border border-white/10 p-4 rounded-2xl font-bold text-sm focus:outline-none focus:border-amber-500">
+                        <option value="433">4-3-3 (Attack)</option>
+                        <option value="442">4-4-2 (Classic)</option>
+                        <option value="352">3-5-2 (Dominance)</option>
+                    </select>
+                </div>
+                <button onclick="window.print()" class="w-full bg-white text-black py-4 rounded-2xl font-black text-xs uppercase hover:bg-amber-500 transition-all">Export Team</button>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8">
+            <div class="pitch flex flex-col justify-around p-8 md:p-12 shadow-2xl" id="pitch-grid"></div>
+        </div>
+    </div>
+
+    <div id="player-modal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 hidden items-center justify-center p-4">
+        <div class="bg-[#0f1218] w-full max-w-4xl rounded-[40px] p-8 border border-white/10 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black uppercase italic ">Registry <span class="text-amber-500">Access</span></h2>
+                <button onclick="closeModal()" class="text-slate-500 hover:text-white">✕ Close</button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pr-2" id="modal-list">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        const players = [
+            { name: "Vinícius Jr", pos: "LWF", ovr: 91, stats: { pac: 95, sho: 84, pas: 81 }, img: "vini.jpg" },
+            { name: "K. Mbappé", pos: "CF", ovr: 92, stats: { pac: 97, sho: 90, pas: 80 }, img: "mbappe.jpg" },
+            { name: "Lamine Yamal", pos: "RWF", ovr: 85, stats: { pac: 89, sho: 78, pas: 83 }, img: "yamal.jpg" },
+            { name: "E. Haaland", pos: "CF", ovr: 91, stats: { pac: 89, sho: 93, pas: 66 }, img: "haaland.jpeg" },
+            { name: "J. Bellingham", pos: "AMF", ovr: 90, stats: { pac: 82, sho: 85, pas: 88 }, img: "bell.jpeg" },
+            { name: "Rodri", pos: "CDM", ovr: 91, stats: { pac: 66, sho: 80, pas: 86 }, img: "rodri.jpg" },
+            { name: "K. De Bruyne", pos: "CMF", ovr: 90, stats: { pac: 72, sho: 85, pas: 94 }, img: "bruyne.jpeg" },
+            { name: "Jamal Musiala", pos: "AMF", ovr: 88, stats: { pac: 85, sho: 82, pas: 84 }, img: "musiala.jpeg" },
+            { name: "William Saliba", pos: "CB", ovr: 88, stats: { pac: 82, def: 87, phy: 83 }, img: "saliba.jpg" },
+            { name: "Virgil van Dijk", pos: "CB", ovr: 89, stats: { pac: 78, def: 89, phy: 86 }, img: "dijk.jpg" },
+            { name: "Alphonso Davies", pos: "LB", ovr: 84, stats: { pac: 95, def: 74, phy: 77 }, img: "davies.jpeg" },
+            { name: "Trent A. Arnold", pos: "RB", ovr: 86, stats: { pac: 76, pas: 90, def: 75 }, img: "arnold.jpg" },
+            { name: "T. Courtois", pos: "GK", ovr: 90, stats: { div: 88, han: 89, ref: 90 }, img: "courtois.jpeg" },
+            { name: "Alisson Becker", pos: "GK", ovr: 89, stats: { div: 86, han: 85, ref: 89 }, img: "alisson.jpg" }
+        ];
+
+        let activeSlotId = null;
+        const formations = { "433": { fw: 3, mid: 3, def: 4, gk: 1 }, "442": { fw: 2, mid: 4, def: 4, gk: 1 }, "352": { fw: 2, mid: 5, def: 3, gk: 1 } };
+
+        function updateFormation() { renderPitch(formations[document.getElementById('formationSelect').value]); }
+
+        function renderPitch(setup) {
+            const pitch = document.getElementById('pitch-grid');
+            pitch.innerHTML = '';
+            Object.keys(setup).forEach(rowKey => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = "flex justify-around items-center w-full";
+                for(let i=0; i < setup[rowKey]; i++) {
+                    rowDiv.innerHTML += `
+                        <div onclick="openModal('${rowKey}-${i}')" id="slot-${rowKey}-${i}" class="player-slot w-16 md:w-28 flex flex-col items-center gap-2">
+                            <div class="w-12 h-12 md:w-20 md:h-20 rounded-full bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center text-xl font-light text-white/10 transition-all">+</div>
+                            <span class="text-[8px] font-black uppercase text-slate-500">${rowKey}</span>
+                        </div>`;
+                }
+                pitch.appendChild(rowDiv);
+            });
+        }
+
+        function openModal(slotId) {
+            activeSlotId = slotId;
+            const list = document.getElementById('modal-list');
+            list.innerHTML = '';
+            players.forEach(p => {
+                const mainStatKey = Object.keys(p.stats)[0]; // Just getting the first stat for the bar
+                const mainStatVal = p.stats[mainStatKey];
+
+                list.innerHTML += `
+                    <div onclick="selectPlayer('${p.name}', '${p.img}')" class="bg-white/5 p-5 rounded-[28px] hover:bg-amber-500 group transition-all cursor-pointer border border-white/5">
+                        <div class="flex gap-4 items-center">
+                            <img src="${p.img}" class="w-14 h-14 rounded-2xl object-cover">
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-black text-xs uppercase group-hover:text-black">${p.name}</h3>
+                                    <span class="text-[10px] font-black bg-amber-500/10 group-hover:bg-black/20 px-2 py-0.5 rounded text-amber-500 group-hover:text-black">${p.pos}</span>
+                                </div>
+                                <div class="mt-2 space-y-1">
+                                    <div class="flex justify-between text-[8px] font-bold uppercase group-hover:text-black/70 text-slate-500">
+                                        <span>${mainStatKey} Rating</span>
+                                        <span>${mainStatVal}%</span>
+                                    </div>
+                                    <div class="stat-bar-bg group-hover:bg-black/10">
+                                        <div class="stat-bar-fill group-hover:bg-black" style="width: ${mainStatVal}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            document.getElementById('player-modal').style.display = 'flex';
+        }
+
+        function selectPlayer(name, img) {
+            const slot = document.getElementById(`slot-${activeSlotId}`);
+            slot.innerHTML = `
+                <img src="${img}" class="w-12 h-12 md:w-20 md:h-20 rounded-full border-2 border-amber-500 object-cover shadow-lg">
+                <span class="text-[9px] font-black uppercase text-white bg-amber-500 px-3 py-1 rounded-full">${name}</span>`;
+            closeModal();
+        }
+
+        function closeModal() { document.getElementById('player-modal').style.display = 'none'; }
+        renderPitch(formations["433"]);
+    </script>
+</body>
+</html>
