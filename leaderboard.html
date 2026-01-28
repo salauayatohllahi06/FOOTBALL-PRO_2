@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Top 50 | FootballPro</title>
+    <script src="leaderboard.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #05070a; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .rank-card { transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.05); }
+        .rank-card:hover { transform: scale(1.02); border-color: #fbbf24; background: rgba(251, 191, 36, 0.05); }
+        .gold-glow { box-shadow: 0 0 20px rgba(251, 191, 36, 0.2); border-color: #fbbf24 !important; }
+    </style>
+</head>
+<body class="p-6 md:p-12 bg-[url('stadium3.jpg')] bg-cover bg-fixed bg-center">
+
+    <div class="max-w-5xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-16 gap-6">
+            <div>
+                <h1 class="text-5xl font-black italic uppercase tracking-tighter">Global <span class="text-amber-500">Top 50</span></h1>
+                <p class="text-slate-500 font-bold text-xs uppercase tracking-[0.4em] mt-2">All Eras • Sorted by Legacy Rating</p>
+            </div>
+            <a href="index.html" class="bg-amber-500 text-black px-8 py-3 rounded-2xl font-black uppercase text-xs hover:bg-white transition-all shadow-lg shadow-amber-500/20">
+                Back to Engine
+            </a>
+        </header>
+
+        <div id="leaderboard-grid" class="grid gap-4">
+            </div>
+    </div>
+
+    <script>
+        const players = [
+            // MODERN ERA
+            { name: "Lionel Messi", base: 92, cups: 45, img: "messi.jpg" },
+            { name: "Cristiano Ronaldo", base: 91, cups: 35, img: "ronaldo.jpg" },
+            { name: "Luka Modric", base: 88, cups: 33, img: "modric.jpg" },
+            { name: "Andrés Iniesta", base: 91, cups: 37, img: "iniesta.jgp" },
+            { name: "Dani Alves", base: 87, cups: 43, img: "alves.jpg" },
+            { name: "Karim Benzema", base: 90, cups: 32, img: "benzema.jpg" },
+            { name: "Robert Lewandowski", base: 90, cups: 28, img: "lewan.jpg" },
+            { name: "Kevin De Bruyne", base: 91, cups: 22, img: "bruyne.jpg" },
+            { name: "Kylian Mbappé", base: 91, cups: 17, img: "mbappe.jpg" },
+            { name: "Erling Haaland", base: 91, cups: 8, img: "haaland.jpg" },
+            { name: "Neymar Jr", base: 89, cups: 27, img: "neymar.jpg" },
+            { name: "Sergio Ramos", base: 89, cups: 29, img: "ramos.jpg" },
+            { name: "Manuel Neuer", base: 90, cups: 31, img: "g" },
+            { name: "Xavi Hernandez", base: 91, cups: 33, img: "" },
+            { name: "Toni Kroos", base: 89, cups: 34, img: "kroos.jpg" },
+            
+            // CLASSIC ERA
+            { name: "Ronaldo Nazário", base: 94, cups: 18, img: "" },
+            { name: "Zinedine Zidane", base: 94, cups: 15, img: "" },
+            { name: "Paolo Maldini", base: 94, cups: 26, img: "" },
+            { name: "Ronaldinho", base: 91, cups: 13, img: "" },
+            { name: "Thierry Henry", base: 92, cups: 21, img: "" },
+            { name: "Gianluigi Buffon", base: 92, cups: 28, img: "" },
+            { name: "Iker Casillas", base: 91, cups: 24, img: "" },
+            { name: "Kaka", base: 91, cups: 10, img: "" },
+            { name: "Luis Figo", base: 90, cups: 22, img: "" },
+            { name: "Ryan Giggs", base: 88, cups: 36, img: "" },
+            { name: "Paul Scholes", base: 89, cups: 25, img: "" },
+            { name: "Roberto Carlos", base: 90, cups: 22, img: "" },
+            { name: "Andrea Pirlo", base: 90, cups: 19, img: "" },
+            { name: "David Beckham", base: 88, cups: 19, img: "" },
+            { name: "Carles Puyol", base: 89, cups: 26, img: "" },
+
+            // VINTAGE ERA
+            { name: "Pelé", base: 95, cups: 27, img: "pele.jpg" },
+            { name: "Diego Maradona", base: 94, cups: 9, img: "" },
+            { name: "Johan Cruyff", base: 93, cups: 22, img: "g" },
+            { name: "Franz Beckenbauer", base: 94, cups: 19, img: "g" },
+            { name: "Lev Yashin", base: 94, cups: 8, img: "g" },
+            { name: "Eusébio", base: 92, cups: 17, img: "g" },
+            { name: "Ferenc Puskás", base: 92, cups: 15, img: "g" },
+            { name: "Gerd Müller", base: 91, cups: 16, img: "g" },
+            { name: "Marco van Basten", base: 91, cups: 18, img: "g" },
+            { name: "Michel Platini", base: 92, cups: 12, img: "g" },
+            { name: "George Best", base: 90, cups: 5, img: "g" },
+            { name: "Bobby Moore", base: 91, cups: 5, img: "g" },
+            { name: "Franco Baresi", base: 93, cups: 21, img: "g" },
+            { name: "Dino Zoff", base: 91, cups: 13, img: "g" },
+            { name: "Socrates", base: 89, cups: 4, img: "g" },
+            { name: "Alfredo Di Stéfano", base: 93, cups: 20, img: "g" },
+            { name: "Zico", base: 91, cups: 14, img: "g" },
+            { name: "Ruud Gullit", base: 90, cups: 14, img: "g" },
+            { name: "Lothar Matthäus", base: 91, cups: 19, img: "" },
+            { name: "Kenny Dalglish", base: 89, cups: 24, img: "" }
+        ];
+
+        function renderLeaderboard() {
+            const grid = document.getElementById('leaderboard-grid');
+            
+            // 1. Calculate Score and Sort
+            const sortedPlayers = players.map(p => {
+                const legacyScore = p.base + (Math.floor(p.cups / 5) * 2);
+                return { ...p, legacyScore };
+            }).sort((a, b) => b.legacyScore - a.legacyScore);
+
+            // 2. Clear grid
+            grid.innerHTML = '';
+
+            // 3. Render Top 50
+            sortedPlayers.forEach((player, index) => {
+                const isTop3 = index < 3;
+                const card = `
+                    <div class="rank-card flex items-center justify-between bg-[#0f1218] p-5 md:p-7 rounded-[35px] ${isTop3 ? 'gold-glow' : ''}">
+                        <div class="flex items-center gap-6">
+                            <span class="text-3xl font-black italic ${isTop3 ? 'text-amber-500' : 'text-slate-800'} w-12">#${index + 1}</span>
+                            <div class="relative">
+                                <img src="${player.img}" class="w-16 h-16 rounded-2xl object-cover border-2 ${isTop3 ? 'border-amber-500' : 'border-white/5'}">
+                                ${isTop3 ? '<span class="absolute -top-2 -right-2 bg-amber-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Elite</span>' : ''}
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-xl uppercase tracking-tight italic">${player.name}</h3>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-slate-500 text-[10px] font-black uppercase tracking-widest">${player.cups} Career Cups</span>
+                                    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
+                                    <span class="text-slate-600 text-[10px] font-bold uppercase tracking-widest">Base ${player.base}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-4xl font-[1000] italic text-amber-500 leading-none">${player.legacyScore}</div>
+                            <span class="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Rating</span>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += card;
+            });
+        }
+
+        renderLeaderboard();
+    </script>
+</body>
+</html>

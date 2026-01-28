@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Tracker | FootballPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #05070a; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .stock-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.03); }
+        .stock-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+        
+        /* Modal Animation */
+        #analytics-modal { display: none; }
+        #analytics-modal.active { display: flex; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .chart-line { stroke-dasharray: 100; stroke-dashoffset: 100; animation: draw 2s forwards; }
+        @keyframes draw { to { stroke-dashoffset: 0; } }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+
+    <div id="analytics-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm items-center justify-center p-4">
+        <div class="bg-[#0f1218] border border-white/10 w-full max-w-lg rounded-[40px] p-8 relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-500 hover:text-white text-xl">✕</button>
+            
+            <div class="flex items-center gap-6 mb-8">
+                <img id="modal-img" src="" class="w-20 h-20 rounded-3xl object-cover border-2 border-amber-500">
+                <div>
+                    <h2 id="modal-name" class="text-3xl font-black uppercase  italic">Player Name</h2>
+                    <p id="modal-meta" class="text-slate-500 font-bold text-xs uppercase tracking-widest"></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-white/5 p-4 rounded-2xl">
+                    <p class="text-[10px] text-slate-500 uppercase font-black mb-1">Finishing</p>
+                    <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div id="bar-1" class="h-full bg-amber-500 transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="bg-white/5 p-4 rounded-2xl">
+                    <p class="text-[10px] text-slate-500 uppercase font-black mb-1">Creative IQ</p>
+                    <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div id="bar-2" class="h-full bg-blue-500 transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-amber-500/10 border border-amber-500/20 p-6 rounded-3xl">
+                <h4 class="text-amber-500 font-black text-xs uppercase mb-2 tracking-tighter">Scout Report</h4>
+                <p id="modal-report" class="text-slate-300 text-sm leading-relaxed italic font-medium"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+            <div>
+                <h1 class="text-4xl font-black italic uppercase ">Transfer <span class="text-amber-500">Market Stock</span></h1>
+                <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-2">Active Intelligence Unit</p>
+            </div>
+            <a href="index.html" class="bg-white/5 border border-white/10 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase hover:bg-white hover:text-black transition-all">Exit</a>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="stock-container"></div>
+    </div>
+
+    <script>
+        const marketData = [
+            // Original Players
+            { name: "Vinícius Júnior", price: 200, change: "+12.4%", trend: "up", club: "Real Madrid", age: 24, img: "https://img.a.transfermarkt.technology/portrait/header/445960-1675086111.jpg", report: "World's most dangerous 1v1 dribbler. Peak value reached after UCL heroics." },
+            { name: "Erling Haaland", price: 180, change: "+2.1%", trend: "up", club: "Man City", age: 24, img: "https://img.a.transfermarkt.technology/portrait/header/418560-1721035513.jpg", report: "Physical phenomenon. Goal-per-game ratio keeps stock at absolute maximum." },
+            { name: "Lamine Yamal", price: 150, change: "+45.2%", trend: "up", club: "FC Barcelona", age: 17, img: "https://img.a.transfermarkt.technology/portrait/header/937958-1720443422.jpg", report: "Historical growth rate. Youngest player to ever reach €150M valuation." },
+            
+            // 20 Additional Players
+            { name: "Jamal Musiala", price: 130, change: "+5.4%", trend: "up", club: "Bayern Munich", age: 21, img: "https://img.a.transfermarkt.technology/portrait/header/580195-1683882100.jpg", report: "Elite agility and ball retention. Key asset for Bayern's future market." },
+            { name: "Rafael Leão", price: 90, change: "-2.1%", trend: "down", club: "AC Milan", age: 25, img: "https://img.a.transfermarkt.technology/portrait/header/357164-1683882000.jpg", report: "Inconsistent form has led to a minor market correction. Still high ceiling." },
+            { name: "Victor Osimhen", price: 100, change: "-10.0%", trend: "down", club: "Galatasaray", age: 25, img: "https://img.a.transfermarkt.technology/portrait/header/405507-1683881900.jpg", report: "Loan move impacted valuation, but finishing metrics remain world-class." },
+            { name: "Gavi", price: 90, change: "0.0%", trend: "up", club: "FC Barcelona", age: 20, img: "https://img.a.transfermarkt.technology/portrait/header/646740-1683881800.jpg", report: "Recovery from injury has stabilized price. Essential midfield 'engine' stock." },
+            { name: "Lautaro Martínez", price: 110, change: "+4.2%", trend: "up", club: "Inter Milan", age: 27, img: "https://img.a.transfermarkt.technology/portrait/header/406625-1683881700.jpg", report: "Captaincy and Serie A dominance keeping stock bullish." },
+            { name: "Eduardo Camavinga", price: 100, change: "+6.8%", trend: "up", club: "Real Madrid", age: 21, img: "https://img.a.transfermarkt.technology/portrait/header/640428-1683881600.jpg", report: "Versatility makes him one of the safest long-term investments." },
+            { name: "Federico Valverde", price: 120, change: "+1.5%", trend: "up", club: "Real Madrid", age: 26, img: "https://img.a.transfermarkt.technology/portrait/header/369081-1683881500.jpg", report: "Infinite stamina. The 'Blue Chip' stock of modern midfielders." },
+            { name: "Declan Rice", price: 120, change: "+3.2%", trend: "up", club: "Arsenal", age: 25, img: "https://img.a.transfermarkt.technology/portrait/header/357623-1683881400.jpg", report: "Premier League reliability. Defensive metrics are top 1% globally." },
+            { name: "Martin Ødegaard", price: 110, change: "+2.7%", trend: "up", club: "Arsenal", age: 25, img: "https://img.a.transfermarkt.technology/portrait/header/316264-1683881300.jpg", report: "Creative output is at an all-time high. Stock steadily climbing." },
+            { name: "William Saliba", price: 80, change: "+15.0%", trend: "up", club: "Arsenal", age: 23, img: "https://img.a.transfermarkt.technology/portrait/header/495666-1683881200.jpg", report: "Fastest growing defender stock in the league." },
+            { name: "Bruno Guimarães", price: 85, change: "+0.4%", trend: "up", club: "Newcastle", age: 26, img: "https://img.a.transfermarkt.technology/portrait/header/520662-1683881100.jpg", report: "The heart of Newcastle. High demand from European giants." },
+            { name: "Cole Palmer", price: 95, change: "+35.5%", trend: "up", club: "Chelsea", age: 22, img: "https://img.a.transfermarkt.technology/portrait/header/568345-1683881000.jpg", report: "Breakout star. Clinical efficiency driving price toward €100M+." },
+            { name: "Luis Díaz", price: 75, change: "-3.2%", trend: "down", club: "Liverpool", age: 27, img: "https://img.a.transfermarkt.technology/portrait/header/480603-1683880900.jpg", report: "Age-performance curve suggests stock is nearing its peak plateau." },
+            { name: "Theo Hernández", price: 60, change: "-5.0%", trend: "down", club: "AC Milan", age: 26, img: "https://img.a.transfermarkt.technology/portrait/header/339390-1683880800.jpg", report: "Defensive lapses have cooled interest slightly this quarter." },
+            { name: "Josko Gvardiol", price: 75, change: "+2.5%", trend: "up", club: "Man City", age: 22, img: "https://img.a.transfermarkt.technology/portrait/header/576024-1683880700.jpg", report: "Most valuable left-footed CB on the market." },
+            { name: "Alessandro Bastoni", price: 70, change: "+5.1%", trend: "up", club: "Inter Milan", age: 25, img: "https://img.a.transfermarkt.technology/portrait/header/315853-1683880600.jpg", report: "Italy's defensive crown jewel. Price reflecting modern ball-playing needs." },
+            { name: "Kobbie Mainoo", price: 55, change: "+60.0%", trend: "up", club: "Man Utd", age: 19, img: "https://img.a.transfermarkt.technology/portrait/header/820339-1683880500.jpg", report: "Vertical growth. Expected to be €100M stock by 2026." },
+            { name: "Warren Zaïre-Emery", price: 60, change: "+20.5%", trend: "up", club: "PSG", age: 18, img: "https://img.a.transfermarkt.technology/portrait/header/971570-1683880400.jpg", report: "The future of French midfield. Massive industrial demand." },
+            { name: "Darwin Núñez", price: 65, change: "-8.0%", trend: "down", club: "Liverpool", age: 25, img: "https://img.a.transfermarkt.technology/portrait/header/546543-1683880300.jpg", report: "High volume but low efficiency is hurting market confidence." },
+            { name: "Marcus Rashford", price: 60, change: "-15.2%", trend: "down", club: "Man Utd", age: 26, img: "https://img.a.transfermarkt.technology/portrait/header/312737-1683880200.jpg", report: "Market correction in progress due to sustained goal drought." }
+        ];
+
+        function renderMarket() {
+            const container = document.getElementById('stock-container');
+            marketData.forEach((player, index) => {
+                const isUp = player.trend === 'up';
+                container.innerHTML += `
+                    <div class="stock-card bg-[#0f1218] rounded-[32px] p-6 flex flex-col gap-6">
+                        <div class="flex justify-between items-start">
+                            <div class="flex gap-4">
+                                <img src="${player.img}" class="w-12 h-12 rounded-xl object-cover">
+                                <div>
+                                    <h3 class="font-bold text-sm uppercase tracking-tight">${player.name}</h3>
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase">${player.club}</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-black ${isUp ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'} px-2 py-1 rounded">
+                                ${player.change}
+                            </span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <p class="text-3xl font-black italic">€${player.price}M</p>
+                            <div class="w-20 h-10">
+                                <svg viewBox="0 0 100 40" class="w-full h-full">
+                                    <path d="${isUp ? 'M0 35 L20 30 L40 32 L60 15 L100 5' : 'M0 5 L20 15 L40 12 L60 30 L100 38'}" fill="none" stroke="${isUp ? '#10b981' : '#ef4444'}" stroke-width="3" class="chart-line" />
+                                </svg>
+                            </div>
+                        </div>
+                        <button onclick="openModal(${index})" class="w-full py-3 bg-white/5 rounded-xl text-[10px] font-black uppercase hover:bg-white hover:text-black transition-all tracking-widest">
+                            Performance Analytics
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function openModal(index) {
+            const p = marketData[index];
+            document.getElementById('modal-img').src = p.img;
+            document.getElementById('modal-name').innerText = p.name;
+            document.getElementById('modal-meta').innerText = `${p.club} • Age ${p.age} • Value €${p.price}M`;
+            document.getElementById('modal-report').innerText = p.report;
+            
+            document.getElementById('analytics-modal').classList.add('active');
+            
+            // Trigger bar animations
+            setTimeout(() => {
+                document.getElementById('bar-1').style.width = (Math.random() * 40 + 60) + "%";
+                document.getElementById('bar-2').style.width = (Math.random() * 50 + 50) + "%";
+            }, 100);
+        }
+
+        function closeModal() {
+            document.getElementById('analytics-modal').classList.remove('active');
+            document.getElementById('bar-1').style.width = "0%";
+            document.getElementById('bar-2').style.width = "0%";
+        }
+
+        renderMarket();
+    </script>
+</body>
+</html>
