@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical Records | FootballPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #05070a; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .record-card { 
+            background: linear-gradient(145deg, #0f1218 0%, #05070a 100%);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .record-card:hover { 
+            border-color: #fbbf24;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .stat-glow { text-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #05070a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-6 md:p-12 bg-[url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1000')] bg-cover bg-fixed bg-center">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div>
+                <span class="text-amber-500 font-black text-[10px] uppercase tracking-[0.5em] mb-2 block animate-pulse">System Archive v4.0</span>
+                <h1 class="text-6xl font-[1000] italic uppercase tracking-tighter">THE <span class="text-amber-500">VAULT</span></h1>
+                <p class="text-slate-500 font-bold text-xs mt-2 uppercase tracking-widest">20 Global Milestones • Data Verified 2025</p>
+            </div>
+            <a href="index.html" class="bg-amber-500 text-black px-10 py-4 rounded-2xl font-black text-xs uppercase hover:bg-white transition-all shadow-lg shadow-amber-500/10">Return to Lobby</a>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="records-grid">
+            </div>
+    </div>
+
+    <script>
+        const records = [
+            { title: "Most Career Goals", holder: "C. Ronaldo", value: "910", difficulty: "99%", status: "Active", icon: "⚽" },
+            { title: "Most World Cups", holder: "Pelé", value: "3", difficulty: "100%", status: "Locked", icon: "🏆" },
+            { title: "Goals in a Year", holder: "Lionel Messi", value: "91", difficulty: "98%", status: "Locked", icon: "📅" },
+            { title: "Champions Leagues", holder: "F. Gento", value: "6", difficulty: "90%", status: "Threatened", icon: "⭐" },
+            { title: "Fastest Goal", holder: "N. Al-Abed", value: "2.4s", difficulty: "95%", status: "Locked", icon: "⚡" },
+            { title: "Unbeaten Run", holder: "AC Milan", value: "58", difficulty: "96%", status: "Locked", icon: "🛡️" },
+            { title: "Most Ballons d'Or", holder: "Lionel Messi", value: "8", difficulty: "99%", status: "Locked", icon: "💎" },
+            { title: "Transfer Fee", holder: "Neymar Jr", value: "€222M", difficulty: "85%", status: "Threatened", icon: "💰" },
+            { title: "Most WC Goals", holder: "Miroslav Klose", value: "16", difficulty: "92%", status: "Threatened", icon: "🌍" },
+            { title: "European Golden Shoes", holder: "Lionel Messi", value: "6", difficulty: "94%", status: "Locked", icon: "👟" },
+            { title: "Most Int. Caps", holder: "C. Ronaldo", value: "216", difficulty: "91%", status: "Active", icon: "🏃" },
+            { title: "Longest Goal (Dist)", holder: "Asmir Begovic", value: "91.9m", difficulty: "97%", status: "Locked", icon: "🏹" },
+            { title: "Most UCL Goals", holder: "C. Ronaldo", value: "140", difficulty: "93%", status: "Threatened", icon: "🎖️" },
+            { title: "Fastest Red Card", holder: "Lee Todd", value: "2s", difficulty: "99%", status: "Locked", icon: "🟥" },
+            { title: "Most Clean Sheets", holder: "Ray Clemence", value: "460", difficulty: "95%", status: "Locked", icon: "🧤" },
+            { title: "Leagues in 1 Season", holder: "Barça/Bayern", value: "6", difficulty: "98%", status: "Sextuple", icon: "🔥" },
+            { title: "Most Assists", holder: "Lionel Messi", value: "370+", difficulty: "96%", status: "Active", icon: "🎯" },
+            { title: "Oldest Goalscorer", holder: "Kazuyoshi Miura", value: "50y", difficulty: "99%", status: "Active", icon: "👴" },
+            { title: "Most Hat-Tricks", holder: "Pelé", value: "92", difficulty: "100%", status: "Locked", icon: "🎩" },
+            { title: "Premier League Gls", holder: "Alan Shearer", value: "260", difficulty: "80%", status: "Threatened", icon: "🦁" }
+        ];
+
+        function renderRecords() {
+            const grid = document.getElementById('records-grid');
+            records.forEach(r => {
+                const isThreatened = r.status === 'Threatened';
+                const isActive = r.status === 'Active';
+                
+                grid.innerHTML += `
+                    <div class="record-card p-6 rounded-[35px] flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="text-3xl">${r.icon}</span>
+                                <span class="text-[9px] font-black px-2 py-1 rounded bg-white/5 ${isThreatened ? 'text-red-400' : isActive ? 'text-green-400' : 'text-slate-500'} uppercase tracking-tighter">
+                                    ${r.status}
+                                </span>
+                            </div>
+                            <h3 class="text-lg font-black uppercase italic tracking-tight leading-tight mb-1">${r.title}</h3>
+                            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">${r.holder}</p>
+                        </div>
+                        
+                        <div class="mt-6 flex items-end justify-between">
+                            <span class="text-3xl font-[1000] italic text-white stat-glow leading-none">${r.value}</span>
+                            <div class="text-right">
+                                <p class="text-[8px] font-black text-slate-700 uppercase">Difficulty</p>
+                                <p class="text-[10px] font-bold text-amber-500">${r.difficulty}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        renderRecords();
+    </script>
+</body>
+</html>
