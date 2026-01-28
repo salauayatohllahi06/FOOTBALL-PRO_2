@@ -98,11 +98,43 @@
                 </button>
             </nav>
 
-            <button class="xl:hidden p-2 bg-slate-100 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+            <button onclick="toggleMenu()" class="xl:hidden p-2 bg-slate-100 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-900"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
             </button>
+            
         </header>
 
+                <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden xl:hidden bg-white rounded-2xl shadow-2xl p-6 mt-4 space-y-6 animate-fade-up">
+
+            <a href="leaderboard.html" class="block font-bold text-slate-700 hover:text-amber-500">
+                Global Leaderboard
+            </a>
+
+            <a href="market_stock.html" class="block font-bold text-slate-700 hover:text-amber-500">
+                Market Stock
+            </a>
+
+            <a href="records.html" class="block font-bold text-slate-700 hover:text-amber-500">
+                World Records
+            </a>
+
+            <a href="dream_xi.html" class="block font-bold text-slate-700 hover:text-amber-500">
+                Dream XI
+            </a>
+
+            <button onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"
+                class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold uppercase tracking-widest">
+                Compare
+            </button>
+
+        </div>
+
+        
         <main class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center py-8 lg:py-20">
             <div class="animate-slide-left space-y-6 lg:space-y-10 text-center lg:text-left">
                 <div class="inline-flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-full border border-amber-100">
@@ -187,6 +219,13 @@
 
         </footer>
     </div>
+
+    <script>
+         function toggleMenu() {
+        const menu = document.getElementById("mobileMenu");
+        menu.classList.toggle("hidden");
+    }
+    </script>
 
 </body>
 </html>
